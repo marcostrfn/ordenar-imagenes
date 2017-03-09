@@ -1,7 +1,6 @@
 
 import os
 import sys
-
 import exiftool
 
 from funciones import module
