@@ -8,7 +8,7 @@ from funciones import module
 def main():
 	
 	dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'img')	
-	matches = module.get_files_recursive(dir, [".jpg"])
+	matches = module.get_files(dir, [".png"])
 		
 	if len(matches)==0:
 		sys.exit()
@@ -20,19 +20,19 @@ def main():
 	for d in metadata:
 	
 		
-		dname = os.path.dirname(d["SourceFile"])
-		bname = os.path.basename(d["SourceFile"])
-		# las imagenes de wasap vienen con pocos metadatos
-		try:
-			dateOriginal = d["EXIF:DateTimeOriginal"]		
-		except:
-			dateOriginal = None
+		# dname = os.path.dirname(d["SourceFile"])
+		# bname = os.path.basename(d["SourceFile"])
+		# para imagenes con pocos metadatos
+		# try:
+		#	dateOriginal = d["EXIF:DateTimeOriginal"]		
+		# except:
+		# 	dateOriginal = None
 			
-		print dname, bname, dateOriginal
+		# print dname, bname, dateOriginal
 		
 		# para ver todas las claves de la imagen
-		# for key in sorted(d):
-		# 	print ( "{0} {1}".format(key,d[key]) )
+		for key in sorted(d):
+			print ( "{0} {1}".format(key,d[key]) )
 		
 
 
