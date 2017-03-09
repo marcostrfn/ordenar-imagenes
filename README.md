@@ -1,2 +1,3 @@
-# ordenar-imagenes
-ordenar imagenes por exif
+# Ordenar imágenes con python y ExifTool
+
+
