@@ -2,14 +2,42 @@
 import os
 import sys
 import exiftool
+import exifread
+import re
 
 from funciones import module
 
 
+def mainWin():
+    # https://pypi.python.org/pypi/ExifRead
+	
+	dir = r"C:\tmp"
+	files = module.get_files(dir, [".jpg"])
+	for file in files:
+		print file
+		print "=" * len(file)
+		
+		# Open image file for reading (binary mode)
+		# and return Exif tags
+		f = open(file, 'rb')
+		tags = exifread.process_file(f)
+		f.close()
+		
+		for tag in sorted(tags.keys()):
+			match = re.search("thumb", tag, re.IGNORECASE)
+			if not match:
+				match = re.search("(model)|(datetimeoriginal)", tag, re.IGNORECASE)
+				if match:
+					print ("{0:20}\t\t{1}".format(tag, tags[tag]))
+		
+		print
+
+	
+	
 def main():
 	
-	dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'img')	
-	matches = module.get_files(dir, [".png"])
+	dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'img')
+	matches = module.get_files(dir, [".jpg"])
 		
 	if len(matches)==0:
 		sys.exit()
@@ -37,4 +65,4 @@ def main():
 		
 
 
-if __name__ == '__main__': main()
+if __name__ == '__main__': mainWin()
