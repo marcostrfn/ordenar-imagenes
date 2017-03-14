@@ -3,11 +3,21 @@ import os
 import sys
 import exifread
 import re
+import pymongo
+
 
 from funciones import module
 
 
 def mainWin():
+	# conexion con mongo
+	client = pymongo.MongoClient('mongodb://192.168.1.36:27017/')
+	db = client.imagenes
+	posts = db.data
+	post_id = posts.insert_one({"x" : "1"}).inserted_id
+	print post_id
+	return
+	
     # https://pypi.python.org/pypi/ExifRead
 
 	# dir = r"C:\tmp"
