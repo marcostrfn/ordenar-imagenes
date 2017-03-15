@@ -14,7 +14,7 @@ def verFichero():
 	
 	file_data = module.get_data_data()
 	info = pickle.load(open( file_data, "rb" ))
-	for line in info:
+	for line in sorted(info):
 		print json.dumps(line, indent=4, sort_keys=True)		
 		if "Image XResolution" in line:
 			print line[r'Image XResolution']
@@ -40,8 +40,8 @@ def main():
 		f.close()
 
 		new_tag = {}
-		new_tag['filename'] = os.path.basename(file)
-		new_tag['dirname'] = os.path.dirname(file)
+		new_tag['Filename'] = os.path.basename(file)
+		new_tag['Dirname'] = os.path.dirname(file)
 		
 		for tag in sorted(tags.keys()):
 			match = re.search("thumb", tag, re.IGNORECASE)
