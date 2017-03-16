@@ -31,6 +31,7 @@ def verFichero():
 		
 		
 def copiarImagenes():
+	print "[copiarImagenes]"
 	file_data = getFileData()
 	if file_data is None:
 		return None
@@ -42,17 +43,30 @@ def copiarImagenes():
 		for exif in line["Exif"]:			
 			match = re.search("^(EXIF){1}\s(datetimeoriginal){1}",exif, re.IGNORECASE)						
 			if match: # existe EXIF dateTimeOriginal				
-				dateTime = line["Exif"][exif].replace(' ','_')
-				# file_src = os.path.join(line["File"]["Dirname"], line["File"]["Filename"])
-				# file_des = os.path.join(dir_dest,  line["Exif"][exif].replace(' ','_'))
-				# copyfile(file_src,file_des)
+				dateTime = line["Exif"][exif].replace(' ','_').replace(':','')
 				break
 		
 		if dateTime is not None:
-			file_name = dateTime
+			extension = os.path.splitext(line["File"]["Filename"])[1][1:]
+			file_name = "{}.{}".format(dateTime, extension)
 		else:
 			file_name = line["File"]["Filename"]
-			
+		
+		
+		file_src = os.path.join(line["File"]["Dirname"], line["File"]["Filename"])
+		file_des = os.path.join(dir_dest, file_name)
+		
+		if os.path.isfile(file_des):
+			num_file = 1
+			while True:
+				file_name = "{}({}).{}".format(dateTime, num_file, extension)
+				file_des = os.path.join(dir_dest,  file_name)
+				if not os.path.isfile(file_des):
+					break
+				num_file += 1
+
+		print "[copiarImagenes] {} => {}".format(file_src,file_des)
+		copyfile(file_src,file_des)
 		
 		
 def main(file_data=None):
@@ -63,9 +77,13 @@ def main(file_data=None):
 	info = []	
 	
 	dir_source, dir_dest, types = module.get_data_config()			
-	files = module.get_files(dir_source, types)
+	files = module.get_files_recursive(dir_source, types)
+	total_files = len(files)
 	
-	for file in files:		
+	num_file = 0
+	for file in files:	
+		num_file += 1
+		print "[main] parsing file {} de {}".format(num_file, total_files) 
 		# Open image file for reading (binary mode)
 		# and return Exif tags
 		f = open(file, 'rb')
@@ -89,7 +107,7 @@ def main(file_data=None):
 				
 		info.append({'File':file_tag, 'Exif':exif_tag})
 
-	
+	print "[main] dumping pickle"
 	pickle.dump( info, open( file_data, "wb" ) )
 	return
 	
