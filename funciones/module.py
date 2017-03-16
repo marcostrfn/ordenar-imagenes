@@ -6,29 +6,6 @@ def uno():
     print 'uno'
 
 	
-def get_data_data(file_config = None):
-	if file_config is None:
-		file_config = os.path.join(os.path.abspath(os.path.dirname(__file__)),'..','config.ini')		
-
-	# configuracion
-	config = ConfigParser.ConfigParser()	
-	config.read(file_config)
-	dir_mode = config.get('directories', 'mode')		
-	
-	if dir_mode == 'relative':
-		dir_data = os.path.join(os.path.abspath(os.path.dirname(__file__)),config.get('directories', 'data'))	
-
-	elif dir_mode == 'absolute':
-		dir_data = config.get('directories', 'data')
-		
-	file_data = os.path.join(dir_data,config.get('files', 'data_name'))	
-	if not os.path.exists(file_data):
-		return
-	
-	return file_data
-
-
-
 def get_data_config(file_config = None):
 
 	if file_config is None:
@@ -40,34 +17,26 @@ def get_data_config(file_config = None):
 		
 	# print config.sections()
 	dir_mode = config.get('directories', 'mode')		
+	
 
 	if dir_mode == 'relative':
 		dir_source = os.path.join(os.path.abspath(os.path.dirname(__file__)),config.get('directories', 'source'))
 		dir_dest = os.path.join(os.path.abspath(os.path.dirname(__file__)),config.get('directories', 'dest'))
-		dir_data = os.path.join(os.path.abspath(os.path.dirname(__file__)),config.get('directories', 'data'))	
+		
 
 	elif dir_mode == 'absolute':
 		dir_source = config.get('directories', 'source')
-		dir_dest = config.get('directories', 'dest')
-		dir_data = config.get('directories', 'data')
+		dir_dest = config.get('directories', 'dest')		
 				
 	if not os.path.exists(dir_source):
 		os.makedirs(dir_source)
 
 	if not os.path.exists(dir_dest):
-		os.makedirs(dir_dest)
-	
-	if not os.path.exists(dir_data):
-		os.makedirs(dir_data)	
-	
-	file_data = os.path.join(dir_data,config.get('files', 'data_name'))
-	
-	if os.path.exists(file_data):
-		os.remove(file_data)	
+		os.makedirs(dir_dest)	
 	
 	types = config.get('files', 'type').split(",")   	
 	
-	return dir_source, dir_dest, dir_data, file_data, types
+	return dir_source, dir_dest, types
 	
 	
 	
