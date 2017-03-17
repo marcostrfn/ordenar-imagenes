@@ -11,6 +11,11 @@ from shutil import copyfile
 from funciones import module
 
 
+# para ver mas informacion de error no-handlers-could-be-found-for-logger-exifread
+import logging
+logging.basicConfig()
+
+
 def getFileData():
 	# pickle donde dejara la informacion de las imagenes
 	dir_data = os.path.join(os.path.abspath(os.path.dirname(__file__)),'_data')	
@@ -31,7 +36,7 @@ def verFichero():
 		
 		
 def copiarImagenes():
-	print "[copiarImagenes]"
+	module.print_n("[copiarImagenes]")
 	file_data = getFileData()
 	if file_data is None:
 		return None
@@ -46,7 +51,7 @@ def copiarImagenes():
 				dateTime = line["Exif"][exif].replace(' ','_').replace(':','')
 				break
 		
-		if dateTime is not None:
+		if dateTime is not None and not dateTime=="00000000_000000":
 			extension = os.path.splitext(line["File"]["Filename"])[1][1:]
 			file_name = "{}.{}".format(dateTime, extension)
 		else:
@@ -65,7 +70,7 @@ def copiarImagenes():
 					break
 				num_file += 1
 
-		print "[copiarImagenes] {} => {}".format(file_src,file_des)
+		module.print_n("[copiarImagenes] {} => {}".format(line["File"]["Filename"],file_name))
 		copyfile(file_src,file_des)
 		
 		
@@ -83,7 +88,7 @@ def main(file_data=None):
 	num_file = 0
 	for file in files:	
 		num_file += 1
-		print "[main] parsing file {} de {}".format(num_file, total_files) 
+		module.print_n("[main] parsing file {} de {}".format(num_file, total_files))
 		# Open image file for reading (binary mode)
 		# and return Exif tags
 		f = open(file, 'rb')
@@ -99,15 +104,14 @@ def main(file_data=None):
 		for tag in sorted(tags.keys()):
 			match = re.search("thumb", tag, re.IGNORECASE)
 			if not match:
-				exif_tag[tag] = tags.get(tag).printable.strip() 
-				# match = re.search("^(EXIF|image){1}\s(model|datetimeoriginal){1}", tag, re.IGNORECASE)
-				# if match:					
-					# new_tag.append((tag,tags.get(tag).printable))
-					# print ("{0:20}\t\t{1}".format(tag, tags[tag]))
+				try:
+					exif_tag[tag] = tags.get(tag).printable.strip() 
+				except:
+					pass
 				
 		info.append({'File':file_tag, 'Exif':exif_tag})
 
-	print "[main] dumping pickle"
+	module.print_n("[main] dumping pickle")
 	pickle.dump( info, open( file_data, "wb" ) )
 	return
 	
