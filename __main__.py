@@ -126,34 +126,27 @@ def ayuda():
 	print '''Use -h para ayuda'''
 	
 if __name__ == '__main__':	
-		parser = OptionParser()
-		parser.add_option('-d', '--directorio', dest='DIR', help='[OBLIGATORIO] Directorio a leer')
-		parser.add_option('-r', '--recursivo', dest='RECURSIVO', action="store_true", default=False, help='recorrer directorio en modo recursivo')
-		parser.add_option('-v', '--verbose', action="store_true", dest="verbose", default=False, help='Activar salida de mensajes por consola')	
-		parser.add_option('-c', '--copiar', dest='COPIAR', action="store_true", default=False, help='copiar imagenes')
+	parser = OptionParser()
+	parser.add_option('-d', '--directorio', dest='DIR', help='[OBLIGATORIO] Directorio a leer')
+	parser.add_option('-r', '--recursivo', dest='RECURSIVO', action="store_true", default=False, help='recorrer directorio en modo recursivo')
+	parser.add_option('-v', '--verbose', action="store_true", dest="verbose", default=False, help='Activar salida de mensajes por consola')	
+	parser.add_option('-c', '--copiar', dest='COPIAR', action="store_true", default=False, help='copiar imagenes')
 
-
+	(opts, args) = parser.parse_args()
 		
-		(opts, args) = parser.parse_args()
+	if opts.DIR is None:
+		ayuda()
+		sys.exit(1)
 		
+	if not os.path.exists(opts.DIR):			
+		ayuda()
+		sys.exit(1)
 		
-		if opts.DIR is None:
-			ayuda()
-			sys.exit(1)
-		
-		if not os.path.exists(opts.DIR):			
-			ayuda()
-			sys.exit(1)
-		
-		file_data = getFileData()
-		if os.path.exists(file_data):
-			os.remove(file_data)	
+	file_data = getFileData()
+	if os.path.exists(file_data):
+		os.remove(file_data)	
 
-		main(opts)
-		# verFichero()
-		if opts.COPIAR:
-			copiarImagenes(opts)
-
-	
-
-
+	main(opts)
+	# verFichero()
+	if opts.COPIAR:
+		copiarImagenes(opts)
