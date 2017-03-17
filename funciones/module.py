@@ -5,6 +5,10 @@ import ConfigParser
 def uno():
     print 'uno'
 
+def print_n(string):
+    import sys
+    sys.stdout.write("{}\r".format(string))
+    sys.stdout.flush()
 	
 def get_data_config(file_config = None):
 
@@ -70,7 +74,8 @@ def get_files_recursive(dir=None, filtro=None):
 				matches.append(os.path.join(root, filename))
 			else:
 				base, ext = os.path.splitext(filename)
-				if ext.lower() in filtro:
+				if ext.lower() in filtro:					
+					print_n("[get_files] {:60}".format(filename))
 					matches.append(os.path.join(root, filename))
 			
 	return matches
