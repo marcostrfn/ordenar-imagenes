@@ -24,23 +24,18 @@ def get_data_config(file_config = None):
 	
 
 	if dir_mode == 'relative':
-		dir_source = os.path.join(os.path.abspath(os.path.dirname(__file__)),config.get('directories', 'source'))
 		dir_dest = os.path.join(os.path.abspath(os.path.dirname(__file__)),config.get('directories', 'dest'))
 		
 
 	elif dir_mode == 'absolute':
-		dir_source = config.get('directories', 'source')
 		dir_dest = config.get('directories', 'dest')		
 				
-	if not os.path.exists(dir_source):
-		os.makedirs(dir_source)
-
 	if not os.path.exists(dir_dest):
 		os.makedirs(dir_dest)	
 	
 	types = config.get('files', 'type').split(",")   	
 	
-	return dir_source, dir_dest, types
+	return dir_dest, types
 	
 	
 	
