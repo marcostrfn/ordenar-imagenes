@@ -7,6 +7,7 @@ import exifread
 import pickle
 import json
 from shutil import copyfile
+from optparse import OptionParser
 
 from funciones import module
 
@@ -35,13 +36,14 @@ def verFichero():
 
 		
 		
-def copiarImagenes():
+def copiarImagenes(opts):
 	module.print_n("[copiarImagenes]")
 	file_data = getFileData()
 	if file_data is None:
 		return None
 		
-	dir_source, dir_dest, types = module.get_data_config()
+	dir_source = opts.DIR
+	dir_dest, types = module.get_data_config()
 	info = pickle.load(open( file_data, "rb" ))
 	for line in info:
 		dateTime = None
@@ -74,15 +76,20 @@ def copiarImagenes():
 		copyfile(file_src,file_des)
 		
 		
-def main(file_data=None):
+def main(opts):
 	file_data = getFileData()
 	if file_data is None:
 		return None
 		
 	info = []	
 	
-	dir_source, dir_dest, types = module.get_data_config()			
-	files = module.get_files_recursive(dir_source, types)
+	dir_source = opts.DIR
+	dir_dest, types = module.get_data_config()	
+	if opts.RECURSIVO:
+		files = module.get_files_recursive(dir_source, types)
+	else:
+		files = module.get_files(dir_source, types)
+		
 	total_files = len(files)
 	
 	num_file = 0
@@ -115,12 +122,38 @@ def main(file_data=None):
 	pickle.dump( info, open( file_data, "wb" ) )
 	return
 	
-		
-if __name__ == '__main__':
-	file_data = getFileData()
-	if os.path.exists(file_data):
-		os.remove(file_data)	
+def ayuda():
+	print '''Use -h para ayuda'''
+	
+if __name__ == '__main__':	
+		parser = OptionParser()
+		parser.add_option('-d', '--directorio', dest='DIR', help='[OBLIGATORIO] Directorio a leer')
+		parser.add_option('-r', '--recursivo', dest='RECURSIVO', action="store_true", default=False, help='recorrer directorio en modo recursivo')
+		parser.add_option('-v', '--verbose', action="store_true", dest="verbose", default=False, help='Activar salida de mensajes por consola')	
+		parser.add_option('-c', '--copiar', dest='COPIAR', action="store_true", default=False, help='copiar imagenes')
 
-	main()
-	# verFichero()
-	copiarImagenes()
+
+		
+		(opts, args) = parser.parse_args()
+		
+		
+		if opts.DIR is None:
+			ayuda()
+			sys.exit(1)
+		
+		if not os.path.exists(opts.DIR):			
+			ayuda()
+			sys.exit(1)
+		
+		file_data = getFileData()
+		if os.path.exists(file_data):
+			os.remove(file_data)	
+
+		main(opts)
+		# verFichero()
+		if opts.COPIAR:
+			copiarImagenes(opts)
+
+	
+
+
