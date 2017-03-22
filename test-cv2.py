@@ -1,28 +1,52 @@
 
-
+import sys
+import os
 import numpy as np
 import cv2
+
+
+from funciones.files.findFiles import get_files_yield
+
+
+
+def carita(file):
+
+	dir_nombre = os.path.dirname(file)
+	nuevo_nombre = os.path.basename(file);
+	nombre,extension = os.path.splitext(nuevo_nombre)
+	
+	nombre_final = os.path.join(dir_nombre,"out-{}.{}".format(nombre,extension))
+	
+	lista = [(file,nombre_final)]
+
+	for img_source,img_result in lista:
+		img = cv2.imread(img_source)
+		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+		for (x,y,w,h) in faces:
+			img = cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+			roi_gray = gray[y:y+h, x:x+w]
+			roi_color = img[y:y+h, x:x+w]
+			
+			eyes = eye_cascade.detectMultiScale(roi_gray)
+			for (ex,ey,ew,eh) in eyes:
+				cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+
+		print img_source, len(faces)
+		if len(faces) > 0:
+			cv2.imwrite(img_result, img)
+			# cv2.imshow('img',img)
+			# cv2.waitKey(0)
+			
+		cv2.destroyAllWindows()
+		
+
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 
-lista = [(r'c:\tmp\a.jpg',r'c:\tmp\a2.jpg'),(r'c:\tmp\b.jpg',r'c:\tmp\b2.jpg'),(r'c:\tmp\c.jpg',r'c:\tmp\c2.jpg')]
+lista = get_files_yield('img')
+for file in lista:
+	carita(file)
 
-for img_source,img_result in lista:
-	img = cv2.imread(img_source)
-	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-	faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-	for (x,y,w,h) in faces:
-		img = cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
-		roi_gray = gray[y:y+h, x:x+w]
-		roi_color = img[y:y+h, x:x+w]
-		eyes = eye_cascade.detectMultiScale(roi_gray)
-		for (ex,ey,ew,eh) in eyes:
-			cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
-
-	print img_source, len(faces)
-	cv2.imwrite(img_result, img)
-	cv2.imshow('img',img)
-	cv2.waitKey(0)
-	cv2.destroyAllWindows()
