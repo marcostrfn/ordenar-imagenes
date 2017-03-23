@@ -80,4 +80,9 @@ class ExifExtractor:
 		if dateTimeOriginal == "0000-00-00_00-00-00":
 			return None
 		
+		s = "^([0-9]{4})-([0-9]{2})-([0-9]{2})_([0-9]{2})-([0-9]{2})-([0-9]{2})"
+		match = re.search(s , dateTimeOriginal, re.IGNORECASE)
+		if match is None:
+			return None
+		
 		return dateTimeOriginal

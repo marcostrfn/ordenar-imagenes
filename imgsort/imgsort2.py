@@ -41,7 +41,7 @@ def verFichero():
 
 		
 		
-def tratar_img(file, dir_dest, opts, face_cascade=None):	
+def tratar_img(img_number, file, dir_dest, opts, face_cascade=None):	
 	
 	num_faces = 0
 	if opts.FACE and face_cascade is not None:
@@ -60,14 +60,34 @@ def tratar_img(file, dir_dest, opts, face_cascade=None):
 	
 	# nuevo nombre del fichero
 	sub_dir = None	
+	hayDate = None
 	if exif.hasTag('EXIF', 'DateTimeOriginal') and exif.getDateTimeOriginal() is not None:
 		date_time = exif.getDateTimeOriginal()		
-		sub_dir = 'Si_DateTimeOriginal'		
+		sub_dir = os.path.join('Si_DateTimeOriginal',date_time[0:7])
+		if not os.path.exists(os.path.join(dir_dest,'Si_DateTimeOriginal',date_time[0:7])):
+			os.makedirs(os.path.join(dir_dest,'Si_DateTimeOriginal',date_time[0:7]))
+
+		if opts.FACE:
+			if not os.path.exists(os.path.join(dir_dest,'Si_DateTimeOriginal',date_time[0:7],'Si_Face')):
+				os.makedirs(os.path.join(dir_dest,'Si_DateTimeOriginal',date_time[0:7],'Si_Face'))
+
+			if not os.path.exists(os.path.join(dir_dest,'Si_DateTimeOriginal',date_time[0:7],'No_Face')):
+				os.makedirs(os.path.join(dir_dest,'Si_DateTimeOriginal',date_time[0:7],'No_Face'))
+
 		file_name = "{}.{}".format(date_time, extension)
+		hayDate = True
 
 	else:
 		date_time = name
 		sub_dir = 'No_DateTimeOriginal'
+		if opts.FACE:
+			if not os.path.exists(os.path.join(dir_dest,'No_DateTimeOriginal','Si_Face')):
+				os.makedirs(os.path.join(dir_dest,'No_DateTimeOriginal','Si_Face'))
+			if not os.path.exists(os.path.join(dir_dest,'No_DateTimeOriginal','No_Face')):
+				os.makedirs(os.path.join(dir_dest,'No_DateTimeOriginal','No_Face'))
+
+
+
 		file_name = "{}.{}".format(date_time, extension)
 
 	
@@ -77,119 +97,25 @@ def tratar_img(file, dir_dest, opts, face_cascade=None):
 		else:
 			sub_dir = os.path.join(sub_dir, 'No_Face')
 
+
 	file_des = os.path.join(dir_dest, sub_dir, file_name)
 	
 	if os.path.isfile(file_des) and opts.DELETE:
 		os.remove(file_des)
 			
 	if os.path.isfile(file_des) and not opts.DELETE:
+		sub_dir = 'copias'
 		num_file = 1
 		while True:										
 			file_name = "{}({}).{}".format(date_time.lower(), num_file, extension.lower())
 											
-			file_des = os.path.join(dir_dest, file_name)
+			file_des = os.path.join(dir_dest, sub_dir, file_name)
 			if not os.path.isfile(file_des):
 				break
 			num_file += 1
 
-	print("[copy] {} => {}".format(os.path.basename(file),os.path.basename(file_des)))	
-	copyfile(file,file_des)
-	
-	'''
-	if exif.hasTag('EXIF', 'DateTimeOriginal'):				
-		line = exif.getExifData()
-		dateTime = exif.getDateTimeOriginal()	
-		extension = os.path.splitext(line["file"]["filename"])[1][1:]
-		if dateTime is not None:			
-			file_name = "{}.{}".format(dateTime.lower(), extension.lower())
-		else:
-			file_name = line["file"]["filename"].lower()
-
-		file_src = os.path.join(line["file"]["dirname"], line["file"]["filename"])
-		file_des = os.path.join(dir_dest, file_name)
-
-		if os.path.isfile(file_des):
-			if opts.DELETE:
-				os.remove(file_des)
-			else:
-				num_file = 1
-				while True:
-					if dateTime is not None:			
-						file_name = "{}({}).{}".format(dateTime.lower(), num_file, extension.lower())
-					else:
-						name = os.path.splitext(line["file"]["filename"])[0][0:]
-						extension = os.path.splitext(line["file"]["filename"])[1][1:]					
-						file_name = "{}({}).{}".format(name.lower(), num_file, extension.lower())
-						
-					
-					file_des = os.path.join(dir_dest, file_name)
-					if not os.path.isfile(file_des):
-						break
-					num_file += 1
-
-		if opts.FACE and face_cascade is not None:
-			img = cv2.imread(file)
-			gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-			faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-			# print file, len(faces)
-			if len(faces) > 0:
-				# cv2.imwrite(img_result, img)
-				# cv2.imshow('img',img)
-				# cv2.waitKey(0)
-				name = os.path.splitext(file_name)[0][0:]
-				extension = os.path.splitext(file_name)[1][1:]					
-				file_name = "{}(face).{}".format(name, extension.upper())
-			
-			cv2.destroyAllWindows()
-			file_des = os.path.join(dir_dest, file_name)
-			
-		copyfile(file_src,file_des)
-		print("[copiarImagenes] {} => {}".format(line["file"]["filename"],file_name))
-		
-	else:
-			
-		name = os.path.splitext(os.path.basename(file))[0][0:]
-		extension = os.path.splitext(os.path.basename(file))[1][1:]					
-		file_name = "{}.{}".format(name.lower(), extension.lower())
-						
-		file_src = file
-		file_des = os.path.join(dir_dest, file_name)
-				
-		
-		
-		if os.path.isfile(file_des):
-			if opts.DELETE:
-				os.remove(file_des)
-			else:
-				num_file = 1
-				while True:						
-					file_name = "{}({}).{}".format(name.lower(), num_file, extension.lower())
-					file_des = os.path.join(dir_dest, file_name)
-					if not os.path.isfile(file_des):
-						break
-					num_file += 1
-
-		if opts.FACE and face_cascade is not None:
-			img = cv2.imread(file)
-			gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-			faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-			# print file, len(faces)
-			if len(faces) > 0:
-				# cv2.imwrite(img_result, img)
-				# cv2.imshow('img',img)
-				# cv2.waitKey(0)				
-				file_name = "{}(face).{}".format(name.lower(), extension.lower())
-			
-			cv2.destroyAllWindows()
-			file_des = os.path.join(dir_dest, file_name)
-					
-		copyfile(file_src,file_des)
-		print("[copiarImagenes] {} => {}".format(file,file_name))
-		'''
-		
-		
+	print("[copy] {} {} => {}".format(img_number, os.path.basename(file),os.path.basename(file_des)))	
+	copyfile(file,file_des)		
 	
 	
 
@@ -203,13 +129,16 @@ def img_sort(opts):
 		face_cascade = cv2.CascadeClassifier(file_cascade)
 	else:
 		face_cascade = None
-		
+	
+	img_number = 0
 	if opts.RECURSIVO:		
-		for file in findFiles.get_files_recursive_yield(dir_source, types):		
-			tratar_img(file, dir_dest, opts, face_cascade)		
+		for file in findFiles.get_files_recursive_yield(dir_source, types):	
+			img_number += 1	
+			tratar_img(img_number, file, dir_dest, opts, face_cascade)		
 	else:
 		for file in findFiles.get_files_yield(dir_source, types):
-			tratar_img(file, dir_dest, opts, face_cascade)
+			img_number += 1
+			tratar_img(img_number, file, dir_dest, opts, face_cascade)
 
 	print("[main] finalizado")
 
@@ -265,23 +194,17 @@ def img_init():
 	if not os.path.exists(opts.dir_dest):
 		os.makedirs(opts.dir_dest)
 
+	if not os.path.exists(os.path.join(opts.dir_dest,'copias')):
+		os.makedirs(os.path.join(opts.dir_dest,'copias'))
+
 	Si_DateTimeOriginal = os.path.join(opts.dir_dest,'Si_DateTimeOriginal')
 	No_DateTimeOriginal = os.path.join(opts.dir_dest,'No_DateTimeOriginal')
 	
 	if not os.path.exists(Si_DateTimeOriginal):
 		os.makedirs(Si_DateTimeOriginal)
-		if not os.path.exists(os.path.join(Si_DateTimeOriginal,'Si_Face')):
-			os.makedirs(os.path.join(Si_DateTimeOriginal,'Si_Face'))
-		if not os.path.exists(os.path.join(Si_DateTimeOriginal,'No_Face')):
-			os.makedirs(os.path.join(Si_DateTimeOriginal,'No_Face'))
 			
 
 	if not os.path.exists(No_DateTimeOriginal):
 		os.makedirs(No_DateTimeOriginal)
-		if not os.path.exists(os.path.join(No_DateTimeOriginal,'No_Face')):
-			os.makedirs(os.path.join(No_DateTimeOriginal,'No_Face'))
-		if not os.path.exists(os.path.join(No_DateTimeOriginal,'Si_Face')):
-			os.makedirs(os.path.join(No_DateTimeOriginal,'Si_Face'))
-
 		
 	img_sort(opts)

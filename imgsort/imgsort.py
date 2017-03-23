@@ -48,7 +48,7 @@ def tratar_img(file, dir_dest, opts, face_cascade=None):
 	if exif.hasTag('EXIF', 'DateTimeOriginal'):				
 		line = exif.getExifData()
 		dateTime = exif.getDateTimeOriginal()	
-		extension = os.path.splitext(line["file"]["filename"])[1][1:]
+		extension = os.path.splitext(line["file"]["filename"])[1][1:]		
 		if dateTime is not None:			
 			file_name = "{}.{}".format(dateTime.lower(), extension.lower())
 		else:
