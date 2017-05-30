@@ -148,16 +148,30 @@ def ayuda():
 	print '''Usage: imgsort.py [options]
 
 Options:
-  -h, --help			show this help message and exit
+  -h, --help
+			Mostrar la ayuda
+			
   -s DIR_SOURCE, --source=DIR_SOURCE
-						[OBLIGATORIO] directorio a leer
+			[OBLIGATORIO] Directorio a leer
+			
   -d DIR_DEST, --dest=DIR_DEST
-						[OBLIGATORIO con opcion COPIAR] directorio destino
+			[OBLIGATORIO con opcion COPIAR] Directorio destino
+			
   -t TYPES, --types=TYPES
-						tipo de fichero a leer
-  -r, --recursivo		recorrer directorio en modo recursivo
-  -v, --verbose			Activar salida de mensajes por consola
-  --delete				eliminar imagenes en DIR_DEST si existen'''
+			Tipo de fichero a leer .jpg,.png
+			
+  -r, --recursivo		
+			Recorrer directorio en modo recursivo
+			
+  -v, --verbose			
+			Activar salida de mensajes por consola
+			
+  --delete				
+			Eliminar imagenes en DIR_DEST si existen.
+			Si no, guardará las imagenes en carpeta copias
+			
+  --face				
+			Activar deteccion de rostros'''
   
 
 def img_init():
